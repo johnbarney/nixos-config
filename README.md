@@ -32,6 +32,21 @@ It currently contains a single host: `taipei-linux`, but is structured to add mo
 sudo nixos-rebuild switch --flake .#taipei-linux
 ```
 
+## Makefile workflow
+Common commands:
+```sh
+make check
+make build-iso
+make iso-path
+make iso-sha
+make switch
+```
+
+Post-install migration flow via Makefile:
+```sh
+make post-install-all REPO_URL=<your-repo-url>
+```
+
 ## Custom installer ISO (GUI + flake apply)
 Build a graphical ISO that includes this repo and a launcher named `Install Taipei Linux (Flake)`:
 ```sh
@@ -47,9 +62,9 @@ ISO output path:
 
 Pre-release sanity check:
 ```sh
-nix flake check --no-build
-nix build .#taipei-installer-iso -L
-sha256sum ./result/iso/*.iso
+make check
+make build-iso
+make iso-sha
 ```
 
 Install flow:
