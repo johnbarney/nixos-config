@@ -66,7 +66,7 @@ nixos-install --flake /mnt/etc/nixos#taipei-linux
 7. Reboot.
 
 ## Repo-Switch
-After first boot, switch `/etc/nixos` to point to this working repo so you can keep iterating here:
+After first boot, clone this repository to your user directory (for example `~/src/nixos-config`) and run the following commands from inside that clone. This switches `/etc/nixos` to that repo so you can keep iterating there:
 
 ```sh
 make post-install-all
