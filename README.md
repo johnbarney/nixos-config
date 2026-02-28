@@ -91,10 +91,10 @@ make switch
 make test-switch
 ```
 
-Optional one-time Codex install (via Homebrew helper):
+Codex CLI is run via `npx`:
 
 ```sh
-install-codex
+codex
 ```
 
 ## Add a new host
