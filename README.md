@@ -38,9 +38,18 @@ Build a graphical ISO that includes this repo and a launcher named `Install Taip
 nix build .#taipei-installer-iso
 ```
 
+Important: this custom ISO is not Secure Boot signed. Disable Secure Boot in firmware before booting it.
+
 ISO output path:
 ```sh
 ./result/iso/*.iso
+```
+
+Pre-release sanity check:
+```sh
+nix flake check --no-build
+nix build .#taipei-installer-iso -L
+sha256sum ./result/iso/*.iso
 ```
 
 Install flow:

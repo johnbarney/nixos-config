@@ -42,6 +42,11 @@ let
 in
 {
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nixpkgs.config.allowUnfree = true;
+
+  # Improve hardware compatibility in the live ISO (notably Wi-Fi chipsets).
+  hardware.enableRedistributableFirmware = true;
+  hardware.enableAllFirmware = true;
 
   environment.etc."nixos-config".source = self;
 
@@ -54,5 +59,8 @@ in
   # Ensure the desktop launcher appears in the live session menu.
   environment.pathsToLink = [ "/share/applications" ];
 
+  isoImage.makeEfiBootable = true;
+  isoImage.makeUsbBootable = true;
+  isoImage.volumeID = lib.mkForce "NIXOSTAIPEI2511";
   isoImage.edition = lib.mkForce "plasma6taipei";
 }
