@@ -44,7 +44,7 @@ make switch
 
 Post-install migration flow via Makefile:
 ```sh
-make post-install-all REPO_URL=<your-repo-url>
+make post-install-all
 ```
 
 ## Custom installer ISO (GUI + flake apply)
@@ -69,7 +69,27 @@ make iso-sha
 
 Install flow:
 1. Boot the custom ISO.
-2. Use the normal graphical installer to partition and mount target disks.
+2. Partition target disks, then mount them under `/mnt` before running the install script.
+   Example (adjust devices/filesystems for your system):
+   ```sh
+   lsblk -f
+   sudo mount /dev/<root-partition> /mnt
+   sudo mkdir -p /mnt/boot
+   sudo mount /dev/<boot-partition> /mnt/boot
+   sudo mkdir -p /mnt/boot/efi
+   sudo mount /dev/<efi-partition> /mnt/boot/efi
+   # Optional swap partition:
+   sudo swapon /dev/<swap-partition>
+   ```
+   For LUKS root:
+   ```sh
+   sudo cryptsetup open /dev/<luks-partition> cryptroot
+   sudo mount /dev/mapper/cryptroot /mnt
+   ```
+   Verify mounts:
+   ```sh
+   findmnt /mnt
+   ```
 3. Open `Install Taipei Linux (Flake)` from the app menu (or run `sudo install-taipei-linux` in a terminal).
 4. The script copies this repo to `/mnt/etc/nixos`, generates `hosts/taipei-linux/hardware-configuration.nix`, and runs `nixos-install --flake /mnt/etc/nixos#taipei-linux`.
 5. Reboot.
