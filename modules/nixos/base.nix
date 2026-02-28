@@ -44,6 +44,7 @@
   environment.systemPackages = with pkgs; [
     curl
     git
+    gnumake
     vim
     flatpak
   ];
