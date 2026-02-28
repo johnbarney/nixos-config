@@ -69,3 +69,20 @@ Install flow:
 - Plasma 6 is enabled via `services.desktopManager.plasma6.enable`.
 - SDDM uses Wayland via `services.displayManager.sddm.wayland.enable`.
 - Fedora-like defaults are approximated with common services and KDE apps.
+
+## Disclaimer
+- This configuration is provided as-is, without warranty.
+- Review hardware, boot, encryption, and networking settings before using on production systems.
+
+## Security
+- No secrets are intentionally stored in this repository.
+- Do not commit private keys, password files, API tokens, or machine-specific secret material.
+- Local secret scanning is configured via `pre-commit` using `gitleaks` in `.pre-commit-config.yaml`.
+- Setup:
+  ```sh
+  nix shell nixpkgs#pre-commit -c pre-commit install
+  nix shell nixpkgs#pre-commit -c pre-commit run --all-files
+  ```
+
+## License
+- MIT. See `LICENSE`.
