@@ -2,7 +2,7 @@
 {
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
-  services.displayManager.defaultSession = "plasmawayland";
+  services.displayManager.defaultSession = "plasma";
   services.desktopManager.plasma6.enable = true;
 
   programs.kdeconnect.enable = true;
@@ -10,7 +10,7 @@
   programs.chromium.enable = true;
 
   xdg.portal.enable = true;
-  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-kde ];
+  xdg.portal.extraPortals = [ pkgs.kdePackages.xdg-desktop-portal-kde ];
 
   environment.systemPackages = with pkgs; [
     kdePackages.ark

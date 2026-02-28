@@ -50,6 +50,23 @@ Install flow:
 4. The script copies this repo to `/mnt/etc/nixos`, generates `hosts/taipei-linux/hardware-configuration.nix`, and runs `nixos-install --flake /mnt/etc/nixos#taipei-linux`.
 5. Reboot.
 
+Post-install (recommended): switch to a user-owned Git checkout:
+```sh
+sudo mv /etc/nixos /etc/nixos.bak
+mkdir -p ~/src
+git clone <your-repo-url> ~/src/nixos-config
+cp /etc/nixos.bak/hosts/taipei-linux/hardware-configuration.nix ~/src/nixos-config/hosts/taipei-linux/hardware-configuration.nix
+sudo ln -sfn "$HOME/src/nixos-config" /etc/nixos
+sudo nixos-rebuild switch --flake /etc/nixos#taipei-linux
+```
+
+This keeps Git operations under your user account while preserving the standard `/etc/nixos` path for rebuilds.
+
+Install Codex via Homebrew (manual, one-time):
+```sh
+install-codex
+```
+
 ## Fedora KDE defaults
 - Plasma defaults (Breeze, Noto fonts) are set in `home/johnbarney/home.nix`.
 - KDE app set is included in `modules/nixos/desktop-kde.nix`.

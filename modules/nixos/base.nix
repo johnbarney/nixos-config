@@ -9,6 +9,7 @@
   services.xserver.xkb.layout = "us";
 
   networking.networkmanager.enable = true;
+  networking.nftables.enable = true;
   services.firewalld.enable = true;
   services.chrony.enable = true;
 
@@ -31,7 +32,7 @@
   services.udisks2.enable = true;
   services.upower.enable = true;
   services.power-profiles-daemon.enable = true;
-  services.logind.powerKey = "ignore";
+  services.logind.settings.Login.HandlePowerKey = "ignore";
 
   programs.zsh.enable = true;
   programs.dconf.enable = true;
@@ -71,8 +72,8 @@
 
   fonts.packages = with pkgs; [
     noto-fonts
-    noto-fonts-cjk
-    noto-fonts-emoji
+    noto-fonts-cjk-sans-static
+    noto-fonts-color-emoji
     liberation_ttf
     dejavu_fonts
   ];

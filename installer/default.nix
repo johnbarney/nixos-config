@@ -5,7 +5,7 @@ let
 
     target_root="/mnt"
     repo_src="/etc/nixos-config"
-    repo_dst="${target_root}/etc/nixos"
+    repo_dst="''${target_root}/etc/nixos"
     host="taipei-linux"
 
     if [[ ! -d "$target_root" ]]; then
@@ -54,5 +54,5 @@ in
   # Ensure the desktop launcher appears in the live session menu.
   environment.pathsToLink = [ "/share/applications" ];
 
-  isoImage.edition = lib.mkForce "plasma6-taipei";
+  isoImage.edition = lib.mkForce "plasma6taipei";
 }

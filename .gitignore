@@ -27,3 +27,10 @@ $RECYCLE.BIN/
 *.log
 *.tmp
 *.temp
+
+# Nix build outputs
+result
+
+# Node artifacts
+node_modules/
+package-lock.json

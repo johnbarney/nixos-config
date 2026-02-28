@@ -37,7 +37,7 @@
         inherit system;
         specialArgs = { inherit self; };
         modules = [
-          "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-plasma6.nix"
+          "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-calamares-plasma6.nix"
           ./installer/default.nix
         ];
       };
