@@ -5,9 +5,10 @@ ISO_PACKAGE ?= taipei-installer-iso
 ISO_GLOB ?= ./result/iso/*.iso
 ETC_NIXOS ?= /etc/nixos
 BACKUP_DIR ?= /etc/nixos.bak
+CRYPTROOT_DEVICE ?= /dev/disk/by-partlabel/cryptroot
 REPO_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 
-.PHONY: help check build-iso iso-path iso-sha switch test-switch update-lock update-lock-nixpkgs update-lock-home-manager update-lock-plasma-manager post-install-backup post-install-copy-hw post-install-link post-install-switch post-install-all
+.PHONY: help check build-iso iso-path iso-sha switch test-switch update-lock update-lock-nixpkgs update-lock-home-manager update-lock-plasma-manager post-install-backup post-install-copy-hw post-install-link post-install-switch post-install-cryptenroll post-install-all
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z0-9._-]+:.*## ' $(MAKEFILE_LIST) | sed 's/:.*## /: /' | sort
@@ -55,4 +56,7 @@ post-install-link: ## Symlink /etc/nixos to current repo (uses sudo)
 post-install-switch: ## Rebuild and switch from /etc/nixos for HOST (uses sudo)
 	sudo nixos-rebuild switch --flake "$(ETC_NIXOS)#$(HOST)"
 
-post-install-all: post-install-backup post-install-copy-hw post-install-link post-install-switch ## Run full post-install migration flow
+post-install-cryptenroll: ## Enroll TPM2 unlock for cryptroot (uses sudo)
+	sudo systemd-cryptenroll --tpm2-device=auto "$(CRYPTROOT_DEVICE)"
+
+post-install-all: post-install-backup post-install-copy-hw post-install-link post-install-switch post-install-cryptenroll ## Run full post-install migration flow

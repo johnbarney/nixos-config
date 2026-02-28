@@ -1,135 +1,110 @@
 # NixOS Config (Dendritic)
 
-This repo is a dendritic-style NixOS configuration with home-manager.
-It currently contains a single host: `taipei-linux`, but is structured to add more hosts later.
+Single-host NixOS flake configuration for `taipei-linux` with a custom installer ISO and Home Manager.
 
 ## Requirements
 - NixOS 25.11
-- `nix-command` and `flakes` enabled (already set in the config)
+- `nix-command` and `flakes` enabled
 
-## Structure
-- `flake.nix`: entry point and host list
-- `hosts/<hostname>/`: host-specific config and hardware
-- `modules/nixos/`: reusable system modules
-- `home/<username>/home.nix`: home-manager config for users
-  - Plasma defaults are set via plasma-manager in home-manager
+## Build
+Use the Makefile targets for the normal build workflow:
 
-## First-time setup
-1. Generate hardware config on the target machine:
-   ```sh
-   sudo nixos-generate-config --show-hardware-config
-   ```
-2. Replace `hosts/taipei-linux/hardware-configuration.nix` with the output.
-3. Update LUKS UUID in `modules/nixos/boot-tpm.nix`:
-   - Replace `REPLACE-WITH-LUKS-UUID` with your actual LUKS UUID (from `blkid`).
-4. Enroll the LUKS volume with TPM2:
-   ```sh
-   sudo systemd-cryptenroll --tpm2-device=auto /dev/disk/by-uuid/<LUKS-UUID>
-   ```
-
-## Build and switch
-```sh
-sudo nixos-rebuild switch --flake .#taipei-linux
-```
-
-## Makefile workflow
-Common commands:
 ```sh
 make check
 make build-iso
 make iso-path
 make iso-sha
-make switch
-```
-
-Post-install migration flow via Makefile:
-```sh
-make post-install-all
-```
-
-## Custom installer ISO (GUI + flake apply)
-Build a graphical ISO that includes this repo and a launcher named `Install Taipei Linux (Flake)`:
-```sh
-nix build .#taipei-installer-iso
 ```
 
 Important: this custom ISO is not Secure Boot signed. Disable Secure Boot in firmware before booting it.
 
-ISO output path:
+The ISO is produced at:
+
 ```sh
 ./result/iso/*.iso
 ```
 
-Pre-release sanity check:
-```sh
-make check
-make build-iso
-make iso-sha
-```
-
-Install flow:
+## Install
 1. Boot the custom ISO.
-2. Partition target disks, then mount them under `/mnt` before running the install script.
-   Example (adjust devices/filesystems for your system):
-   ```sh
-   lsblk -f
-   sudo mount /dev/<root-partition> /mnt
-   sudo mkdir -p /mnt/boot
-   sudo mount /dev/<boot-partition> /mnt/boot
-   sudo mkdir -p /mnt/boot/efi
-   sudo mount /dev/<efi-partition> /mnt/boot/efi
-   # Optional swap partition:
-   sudo swapon /dev/<swap-partition>
-   ```
-   For LUKS root:
-   ```sh
-   sudo cryptsetup open /dev/<luks-partition> cryptroot
-   sudo mount /dev/mapper/cryptroot /mnt
-   ```
-   Verify mounts:
-   ```sh
-   findmnt /mnt
-   ```
-3. Open `Install Taipei Linux (Flake)` from the app menu (or run `sudo install-taipei-linux` in a terminal).
-4. The script copies this repo to `/mnt/etc/nixos`, generates `hosts/taipei-linux/hardware-configuration.nix`, and runs `nixos-install --flake /mnt/etc/nixos#taipei-linux`.
-5. Reboot.
+2. Partition target disks.
+3. If using LUKS for root, ensure the encrypted root partition has label `cryptroot` (or update `modules/nixos/boot-tpm.nix`).
+4. Mount target filesystems under `/mnt`.
 
-Post-install (recommended): switch to a user-owned Git checkout:
+Example mount flow (adjust devices/filesystems):
+
 ```sh
-sudo mv /etc/nixos /etc/nixos.bak
-mkdir -p ~/src
-git clone <your-repo-url> ~/src/nixos-config
-cp /etc/nixos.bak/hosts/taipei-linux/hardware-configuration.nix ~/src/nixos-config/hosts/taipei-linux/hardware-configuration.nix
-sudo ln -sfn "$HOME/src/nixos-config" /etc/nixos
-sudo nixos-rebuild switch --flake /etc/nixos#taipei-linux
+lsblk -f
+sudo mount /dev/<root-partition> /mnt
+sudo mkdir -p /mnt/boot
+sudo mount /dev/<boot-partition> /mnt/boot
+sudo mkdir -p /mnt/boot/efi
+sudo mount /dev/<efi-partition> /mnt/boot/efi
+# Optional swap:
+sudo swapon /dev/<swap-partition>
 ```
 
-This keeps Git operations under your user account while preserving the standard `/etc/nixos` path for rebuilds.
+For LUKS root:
 
-Install Codex via Homebrew (manual, one-time):
+```sh
+sudo cryptsetup open /dev/<luks-partition> cryptroot
+sudo mount /dev/mapper/cryptroot /mnt
+```
+
+Verify:
+
+```sh
+findmnt /mnt
+```
+
+5. Start `Install Taipei Linux (Flake)` from the app menu (or run `sudo install-taipei-linux`).
+6. The script copies this repo to `/mnt/etc/nixos`, generates `hosts/taipei-linux/hardware-configuration.nix`, and runs:
+
+```sh
+nixos-install --flake /mnt/etc/nixos#taipei-linux
+```
+
+7. Reboot.
+
+## Repo-Switch
+After first boot, switch `/etc/nixos` to point to this working repo so you can keep iterating here:
+
+```sh
+make post-install-all
+```
+
+Step-by-step equivalent:
+
+```sh
+make post-install-backup
+make post-install-copy-hw
+make post-install-link
+make post-install-switch
+make post-install-cryptenroll
+```
+
+`post-install-all` includes TPM enrollment via `systemd-cryptenroll` using `/dev/disk/by-partlabel/cryptroot` by default.
+
+Daily operations:
+
+```sh
+make switch
+make test-switch
+```
+
+Optional one-time Codex install (via Homebrew helper):
+
 ```sh
 install-codex
 ```
 
-## Fedora KDE defaults
-- Plasma defaults (Breeze, Noto fonts) are set in `home/johnbarney/home.nix`.
-- KDE app set is included in `modules/nixos/desktop-kde.nix`.
-- Flatpak is enabled and Flathub is added on boot via `modules/nixos/base.nix`.
-- Fedora wallpaper is configured for both Plasma and SDDM in `modules/nixos/fedora-artwork.nix`.
-  - If the wallpaper URL changes, re-prefetch and update its hash in `modules/nixos/fedora-artwork.nix`.
-
 ## Add a new host
 1. Create `hosts/<new-host>/default.nix` and `hosts/<new-host>/hardware-configuration.nix`.
 2. Add it under `nixosConfigurations` in `flake.nix`.
-3. Rebuild using the new hostname:
-   ```sh
-   sudo nixos-rebuild switch --flake .#<new-host>
-   ```
+3. Rebuild:
 
-## Notes
-- Plasma 6 is enabled via `services.desktopManager.plasma6.enable`.
-- SDDM uses Wayland via `services.displayManager.sddm.wayland.enable`.
-- Fedora-like defaults are approximated with common services and KDE apps.
+```sh
+sudo nixos-rebuild switch --flake .#<new-host>
+```
 
 ## Disclaimer
 - This configuration is provided as-is, without warranty.
