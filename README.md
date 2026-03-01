@@ -60,30 +60,37 @@ Verify:
 findmnt /mnt
 ```
 
-5. Start `Install Taipei Linux (Flake)` from the app menu (or run `sudo install-taipei-linux`).
-6. The script copies this repo to `/mnt/etc/nixos`, generates `hosts/taipei-linux/hardware-configuration.nix`, and runs:
+5. Start `Install NixOS Host (Flake)` from the app menu (or run `sudo install-nixos-host`).
+6. The script lets you choose a host, copies this repo to `/mnt/etc/nixos`, generates `hosts/<host>/hardware-configuration.nix`, and runs:
 
 ```sh
-nixos-install --flake /mnt/etc/nixos#taipei-linux
+nixos-install --flake /mnt/etc/nixos#<host>
 ```
 
 7. Reboot.
+
+You can also skip the prompt and pass the host directly:
+
+```sh
+sudo install-nixos-host taipei-linux
+sudo install-nixos-host tokyo-linux
+```
 
 ## Repo-Switch
 After first boot, clone this repository to your user directory (for example `~/src/nixos-config`) and run the following commands from inside that clone. This switches `/etc/nixos` to that repo so you can keep iterating there:
 
 ```sh
-make post-install-all HOST=taipei-linux
+make post-install-all
 ```
 
 Step-by-step equivalent:
 
 ```sh
-make post-install-backup HOST=taipei-linux
-make post-install-copy-hw HOST=taipei-linux
-make post-install-link HOST=taipei-linux
-make post-install-switch HOST=taipei-linux
-make post-install-cryptenroll HOST=taipei-linux
+make post-install-backup
+make post-install-copy-hw
+make post-install-link
+make post-install-switch
+make post-install-cryptenroll
 ```
 
 `post-install-all` includes TPM enrollment via `systemd-cryptenroll` using `/dev/disk/by-partlabel/cryptroot` by default.
@@ -91,8 +98,15 @@ make post-install-cryptenroll HOST=taipei-linux
 Daily operations:
 
 ```sh
-make switch HOST=taipei-linux
-make test-switch HOST=tokyo-linux
+make switch
+make test-switch
+```
+
+By default, Makefile commands use the current machine hostname. You can still override it explicitly:
+
+```sh
+make switch HOST=<host>
+make post-install-all HOST=<host>
 ```
 
 Codex CLI is run via `npx`:
@@ -108,13 +122,6 @@ codex
 
 ```sh
 sudo nixos-rebuild switch --flake .#<new-host>
-```
-
-You can also select a host for Makefile targets:
-
-```sh
-make switch HOST=<host>
-make post-install-all HOST=<host>
 ```
 
 ## Disclaimer

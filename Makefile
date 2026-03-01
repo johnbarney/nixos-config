@@ -1,6 +1,9 @@
 SHELL := /usr/bin/env bash
 
-HOST ?= taipei-linux
+HOST ?= $(shell (hostnamectl --static 2>/dev/null || hostname -s 2>/dev/null || true) | tr -d '\n')
+ifeq ($(strip $(HOST)),)
+HOST := taipei-linux
+endif
 ISO_PACKAGE ?= taipei-installer-iso
 ISO_GLOB ?= ./result/iso/*.iso
 ETC_NIXOS ?= /etc/nixos
