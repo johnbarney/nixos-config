@@ -3,7 +3,7 @@
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
 
-  time.timeZone = "America/New_York";
+  time.timeZone = "Asia/Ho_Chi_Minh";
   i18n.defaultLocale = "en_US.UTF-8";
   console.keyMap = "us";
   services.xserver.xkb.layout = "us";
@@ -50,7 +50,7 @@
   ];
 
   systemd.services.flatpak-flathub = {
-    description = "Add Flathub remote (Fedora default)";
+    description = "Add Flathub remote";
     wantedBy = [ "multi-user.target" ];
     after = [ "network-online.target" ];
     wants = [ "network-online.target" ];

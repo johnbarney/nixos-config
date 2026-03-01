@@ -2,11 +2,11 @@
   imports = [
     ./base.nix
     ./desktop-kde.nix
-    ./fedora-artwork.nix
+    ./wallpaper.nix
     ./nvidia.nix
     ./steam.nix
     ./onepassword.nix
-    ./wayland-sddm.nix
+    ./sddm.nix
     ./boot-tpm.nix
   ];
 }

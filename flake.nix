@@ -48,6 +48,11 @@
           username = "johnbarney";
         };
 
+        tokyo-linux = mkHost {
+          hostname = "tokyo-linux";
+          username = "johnbarney";
+        };
+
         taipei-installer = installerSystem;
       };
 

@@ -1,6 +1,10 @@
 # NixOS Config (Dendritic)
 
-Single-host NixOS flake configuration for `taipei-linux` with a custom installer ISO and Home Manager.
+Multi-host NixOS flake configuration with a custom installer ISO and Home Manager.
+
+Defined hosts:
+- `taipei-linux`
+- `tokyo-linux`
 
 ## Requirements
 - NixOS 25.11
@@ -69,17 +73,17 @@ nixos-install --flake /mnt/etc/nixos#taipei-linux
 After first boot, clone this repository to your user directory (for example `~/src/nixos-config`) and run the following commands from inside that clone. This switches `/etc/nixos` to that repo so you can keep iterating there:
 
 ```sh
-make post-install-all
+make post-install-all HOST=taipei-linux
 ```
 
 Step-by-step equivalent:
 
 ```sh
-make post-install-backup
-make post-install-copy-hw
-make post-install-link
-make post-install-switch
-make post-install-cryptenroll
+make post-install-backup HOST=taipei-linux
+make post-install-copy-hw HOST=taipei-linux
+make post-install-link HOST=taipei-linux
+make post-install-switch HOST=taipei-linux
+make post-install-cryptenroll HOST=taipei-linux
 ```
 
 `post-install-all` includes TPM enrollment via `systemd-cryptenroll` using `/dev/disk/by-partlabel/cryptroot` by default.
@@ -87,8 +91,8 @@ make post-install-cryptenroll
 Daily operations:
 
 ```sh
-make switch
-make test-switch
+make switch HOST=taipei-linux
+make test-switch HOST=tokyo-linux
 ```
 
 Codex CLI is run via `npx`:
@@ -104,6 +108,13 @@ codex
 
 ```sh
 sudo nixos-rebuild switch --flake .#<new-host>
+```
+
+You can also select a host for Makefile targets:
+
+```sh
+make switch HOST=<host>
+make post-install-all HOST=<host>
 ```
 
 ## Disclaimer

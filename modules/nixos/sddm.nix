@@ -5,7 +5,7 @@
   services.displayManager.sddm.settings = {
     Theme = {
       Current = "breeze";
-      Background = "/etc/fedora/wallpaper.png";
+      Background = "/etc/wallpapers/dark_jungle.jpeg";
     };
   };
 

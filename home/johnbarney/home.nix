@@ -34,13 +34,13 @@
   programs.plasma = {
     enable = true;
     workspace = {
-      lookAndFeel = "org.kde.breeze.desktop";
+      lookAndFeel = "org.kde.breezedark.desktop";
       iconTheme = "breeze";
       cursor = {
         theme = "breeze_cursors";
         size = 24;
       };
-      wallpaper = "/etc/fedora/wallpaper.png";
+      wallpaper = "/etc/wallpapers/dark_jungle.jpeg";
     };
     fonts = {
       general = {
