@@ -4,8 +4,8 @@ HOST ?= $(shell (hostnamectl --static 2>/dev/null || hostname -s 2>/dev/null || 
 ifeq ($(strip $(HOST)),)
 HOST := taipei-linux
 endif
-ISO_PACKAGE ?= taipei-installer-iso
-ISO_GLOB ?= ./result/iso/*.iso
+ISO_PACKAGE ?= installer-iso
+ISO_OUTPUT_DIR ?= ./result/iso
 ETC_NIXOS ?= /etc/nixos
 BACKUP_DIR ?= /etc/nixos.bak
 CRYPTROOT_DEVICE ?= /dev/disk/by-partlabel/cryptroot
@@ -20,13 +20,17 @@ check: ## Run flake checks (no build)
 	nix flake check --no-build
 
 build-iso: ## Build installer ISO
-	nix build .#$(ISO_PACKAGE) -L
+	@set -euo pipefail; \
+	mkdir -p "$(ISO_OUTPUT_DIR)"; \
+	out_path="$$(nix build .#$(ISO_PACKAGE) -L --no-link --print-out-paths)"; \
+	cp -f "$$out_path"/iso/*.iso "$(ISO_OUTPUT_DIR)/"; \
+	$(MAKE) iso-sha
 
 iso-path: ## Print built ISO path(s)
-	@ls -1 $(ISO_GLOB)
+	@ls -1 "$(ISO_OUTPUT_DIR)"/*.iso
 
 iso-sha: ## Print SHA256 for built ISO(s)
-	sha256sum $(ISO_GLOB)
+	sha256sum "$(ISO_OUTPUT_DIR)"/*.iso
 
 switch: ## Rebuild and switch current system for HOST (uses sudo)
 	sudo nixos-rebuild switch --flake .#$(HOST)

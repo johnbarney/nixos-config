@@ -54,9 +54,11 @@
           username = "johnbarney";
         };
 
-        taipei-installer = installerSystem;
+        installer = installerSystem;
       };
 
-      packages.${system}.taipei-installer-iso = installerSystem.config.system.build.isoImage;
+      packages.${system} = {
+        installer-iso = installerSystem.config.system.build.isoImage;
+      };
     };
 }

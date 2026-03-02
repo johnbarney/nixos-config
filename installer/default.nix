@@ -72,10 +72,6 @@ let
     echo "  sudo systemd-cryptenroll --tpm2-device=auto /dev/disk/by-uuid/<LUKS-UUID>"
   '';
 
-  installTaipeiCompatScript = pkgs.writeShellScriptBin "install-taipei-linux" ''
-    exec ${installScript}/bin/install-nixos-host taipei-linux
-  '';
-
   installDesktopEntry = pkgs.makeDesktopItem {
     name = "install-nixos-host";
     desktopName = "Install NixOS Host (Flake)";
@@ -99,7 +95,6 @@ in
   environment.systemPackages = with pkgs; [
     git
     installScript
-    installTaipeiCompatScript
     installDesktopEntry
   ];
 
@@ -108,6 +103,6 @@ in
 
   isoImage.makeEfiBootable = true;
   isoImage.makeUsbBootable = true;
-  isoImage.volumeID = lib.mkForce "NIXOSTAIPEI2511";
-  isoImage.edition = lib.mkForce "plasma6taipei";
+  isoImage.volumeID = lib.mkForce "NIXOSINSTALLER";
+  isoImage.edition = lib.mkForce "plasma6installer";
 }
