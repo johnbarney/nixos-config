@@ -7,7 +7,7 @@ Defined hosts:
 - `tokyo-linux`
 
 ## Requirements
-- NixOS 25.11
+- NixOS unstable (rolling)
 - `nix-command` and `flakes` enabled
 
 ## Build

@@ -13,6 +13,8 @@
   xdg.portal.extraPortals = [ pkgs.kdePackages.xdg-desktop-portal-kde ];
 
   environment.systemPackages = with pkgs; [
+    vscode
+    heroic
     kdePackages.ark
     kdePackages.discover
     kdePackages.dolphin
