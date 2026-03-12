@@ -1,6 +1,19 @@
 { config, lib, pkgs, plasma-manager, ... }:
 let
   screenshotDir = "${config.home.homeDirectory}/Pictures/Screenshots";
+  theme = {
+    fontSans = "Noto Sans";
+    fontMono = "Noto Sans Mono";
+    background = "#232629";
+    foreground = "#eff0f1";
+    accent = "#3daee9";
+    accentSoft = "#3daee933";
+    inactive = "#585b70aa";
+    white = "#ffffffff";
+  };
+  terminalBin = "${pkgs.kitty}/bin/kitty";
+  hyprCheatsheetCommand =
+    "${terminalBin} --class hypr-cheatsheet --title 'Hypr Cheatsheet' --override remember_window_size=no --override initial_window_width=52c --override initial_window_height=22c ${hyprCheatsheet}/bin/hypr-cheatsheet";
   hyprCheatsheet = pkgs.writeShellScriptBin "hypr-cheatsheet" ''
     cat <<'EOF'
     Hyprland shortcuts
@@ -117,7 +130,7 @@ in {
       size = 24;
     };
     font = {
-      name = "Noto Sans";
+      name = theme.fontSans;
       size = 10;
     };
     gtk3.extraConfig = {
@@ -147,15 +160,15 @@ in {
     };
     fonts = {
       general = {
-        family = "Noto Sans";
+        family = theme.fontSans;
         pointSize = 10;
       };
       fixedWidth = {
-        family = "Noto Sans Mono";
+        family = theme.fontMono;
         pointSize = 10;
       };
       windowTitle = {
-        family = "Noto Sans";
+        family = theme.fontSans;
         pointSize = 10;
       };
     };
@@ -176,12 +189,17 @@ in {
       confirm_os_window_close = 0;
       enable_audio_bell = false;
       macos_option_as_alt = true;
-      background = "#232629";
-      foreground = "#eff0f1";
-      selection_background = "#3daee9";
-      selection_foreground = "#eff0f1";
-      cursor = "#3daee9";
-      cursor_text_color = "#232629";
+      font_family = theme.fontMono;
+      font_size = 10;
+      background = theme.background;
+      foreground = theme.foreground;
+      selection_background = theme.accent;
+      selection_foreground = theme.foreground;
+      cursor = theme.accent;
+      cursor_text_color = theme.background;
+      active_border_color = theme.accent;
+      inactive_border_color = "#4b4f54";
+      window_padding_width = 10;
     };
   };
 
@@ -189,7 +207,7 @@ in {
     enable = true;
     settings = {
       main = {
-        terminal = "${pkgs.kitty}/bin/kitty";
+        terminal = terminalBin;
         width = 48;
         "horizontal-pad" = 20;
         "vertical-pad" = 14;
@@ -202,7 +220,7 @@ in {
         input = "eff0f1ff";
         prompt = "3daee9ff";
         selection = "3daee933";
-        "selection-text" = "ffffffff";
+        "selection-text" = theme.white;
         match = "3daee9ff";
         border = "3daee9ff";
       };
@@ -333,7 +351,7 @@ in {
 
       "exec-once" = [
         "${pkgs.waybar}/bin/waybar"
-        "${pkgs.kitty}/bin/kitty --class hypr-cheatsheet --title 'Hypr Cheatsheet' --override remember_window_size=no --override initial_window_width=52c --override initial_window_height=22c ${hyprCheatsheet}/bin/hypr-cheatsheet"
+        hyprCheatsheetCommand
       ];
 
       env = [
@@ -360,7 +378,7 @@ in {
         gaps_in = 6;
         gaps_out = 10;
         border_size = 2;
-        "col.active_border" = "rgba(89b4faff)";
+        "col.active_border" = "rgba(3daee9ff)";
         "col.inactive_border" = "rgba(585b70aa)";
         resize_on_border = true;
         layout = "dwindle";
@@ -404,11 +422,11 @@ in {
 
       bind =
         [
-          "$mainMod, RETURN, exec, ${pkgs.kitty}/bin/kitty"
+          "$mainMod, RETURN, exec, ${terminalBin}"
           "$mainMod, SPACE, exec, ${pkgs.fuzzel}/bin/fuzzel"
           "$mainMod, B, exec, ${pkgs.chromium}/bin/chromium"
           "$mainMod, E, exec, ${pkgs.kdePackages.dolphin}/bin/dolphin"
-          "$mainMod, slash, exec, ${pkgs.kitty}/bin/kitty --class hypr-cheatsheet --title 'Hypr Cheatsheet' --override remember_window_size=no --override initial_window_width=52c --override initial_window_height=22c ${hyprCheatsheet}/bin/hypr-cheatsheet"
+          "$mainMod, slash, exec, ${hyprCheatsheetCommand}"
           "$mainMod, TAB, cyclenext"
           "$mainMod SHIFT, TAB, cyclenext, prev"
           "$mainMod, Q, killactive"
