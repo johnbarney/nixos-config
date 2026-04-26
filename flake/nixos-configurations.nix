@@ -50,6 +50,8 @@ in
     nixosModules = {
       default = ../modules/nixos;
       dendritic = ../modules/nixos;
+      cpu-amd = ../modules/nixos/cpu-amd.nix;
+      cpu-intel = ../modules/nixos/cpu-intel.nix;
       desktop = ../profiles/desktop.nix;
       desktop-nvidia = ../profiles/desktop-nvidia.nix;
       installer = ../installer/default.nix;

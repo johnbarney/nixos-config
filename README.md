@@ -10,6 +10,7 @@ commands, and ISO builds live in consumer repos. The public starter consumer is
 ## What This Exports
 
 - `nixosModules.default` / `nixosModules.dendritic`: shared NixOS module set.
+- `nixosModules.cpu-amd` / `nixosModules.cpu-intel`: optional CPU microcode modules.
 - `nixosModules.desktop`: desktop profile without NVIDIA-specific settings.
 - `nixosModules.desktop-nvidia`: desktop profile plus NVIDIA settings.
 - `nixosModules.installer`: live ISO customizations used by host repos.

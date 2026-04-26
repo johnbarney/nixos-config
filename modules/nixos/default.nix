@@ -1,6 +1,12 @@
 { lib, import-tree, ... }:
+let
+  excluded = [
+    ./cpu-amd.nix
+    ./cpu-intel.nix
+    ./default.nix
+    ./nvidia.nix
+  ];
+in
 {
-  imports =
-    lib.remove ./nvidia.nix
-      (lib.remove ./default.nix ((import-tree.withLib lib).leafs ./.));
+  imports = lib.subtractLists excluded ((import-tree.withLib lib).leafs ./.);
 }
