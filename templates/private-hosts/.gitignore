@@ -1,8 +1,0 @@
-# Editors
-*.swp
-*.swo
-*~
-
-# Nix build outputs
-result
-result-*
