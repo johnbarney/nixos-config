@@ -3,6 +3,8 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    import-tree.url = "github:vic/import-tree";
     home-manager = {
       url = "github:nix-community/home-manager/master";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -14,51 +16,6 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, plasma-manager, ... }:
-    let
-      system = "x86_64-linux";
-      lib = nixpkgs.lib;
-      mkHost = { hostname, username }:
-        lib.nixosSystem {
-          inherit system;
-          specialArgs = { inherit hostname username; };
-          modules = [
-            ./hosts/${hostname}
-            home-manager.nixosModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = { inherit plasma-manager; };
-              home-manager.users.${username} = import ./home/${username}/home.nix;
-            }
-          ];
-        };
-
-      installerSystem = lib.nixosSystem {
-        inherit system;
-        specialArgs = { inherit self; };
-        modules = [
-          "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-calamares-plasma6.nix"
-          ./installer/default.nix
-        ];
-      };
-    in {
-      nixosConfigurations = {
-        taipei-linux = mkHost {
-          hostname = "taipei-linux";
-          username = "johnbarney";
-        };
-
-        tokyo-linux = mkHost {
-          hostname = "tokyo-linux";
-          username = "johnbarney";
-        };
-
-        installer = installerSystem;
-      };
-
-      packages.${system} = {
-        installer-iso = installerSystem.config.system.build.isoImage;
-      };
-    };
+  outputs = inputs:
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } (inputs.import-tree ./flake);
 }

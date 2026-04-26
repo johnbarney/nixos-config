@@ -2,7 +2,6 @@
 {
   imports = [
     ./hardware-configuration.nix
-    ../../modules/nixos
   ];
 
   # Fallbacks for repo evaluation before real hardware config is generated.
