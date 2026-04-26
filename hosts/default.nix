@@ -1,11 +1,6 @@
 {
-  taipei-linux = {
-    username = "johnbarney";
-    profile = ../profiles/desktop-nvidia.nix;
-  };
-
-  tokyo-linux = {
-    username = "johnbarney";
+  example-desktop = {
+    username = "alice";
     profile = ../profiles/desktop-nvidia.nix;
   };
 }

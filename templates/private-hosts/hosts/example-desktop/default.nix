@@ -4,7 +4,7 @@
     ./hardware-configuration.nix
   ];
 
-  # Fallbacks for repo evaluation before real hardware config is generated.
+  # Fallbacks keep the template evaluable before a real hardware config exists.
   fileSystems."/" = lib.mkDefault {
     device = "/dev/disk/by-label/nixos";
     fsType = "ext4";
@@ -15,7 +15,7 @@
 
   users.users.${username} = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "video" "audio" "lp" "scanner" "plugdev" ];
+    extraGroups = [ "wheel" "networkmanager" "video" "audio" ];
     shell = pkgs.zsh;
   };
 }
