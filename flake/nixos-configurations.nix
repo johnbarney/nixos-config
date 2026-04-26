@@ -15,7 +15,7 @@ let
       hostname,
       username,
       hostModule,
-      profile ? ../profiles/desktop-nvidia.nix,
+      profile ? ../profiles/desktop.nix,
       homeModule ? null,
       extraModules ? [ ],
       specialArgs ? { },
@@ -50,6 +50,7 @@ in
     nixosModules = {
       default = ../modules/nixos;
       dendritic = ../modules/nixos;
+      desktop = ../profiles/desktop.nix;
       desktop-nvidia = ../profiles/desktop-nvidia.nix;
       installer = ../installer/default.nix;
     };

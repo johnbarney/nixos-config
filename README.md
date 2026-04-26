@@ -10,7 +10,8 @@ commands, and ISO builds live in consumer repos. The public starter consumer is
 ## What This Exports
 
 - `nixosModules.default` / `nixosModules.dendritic`: shared NixOS module set.
-- `nixosModules.desktop-nvidia`: current desktop profile.
+- `nixosModules.desktop`: desktop profile without NVIDIA-specific settings.
+- `nixosModules.desktop-nvidia`: desktop profile plus NVIDIA settings.
 - `nixosModules.installer`: live ISO customizations used by host repos.
 - `lib.mkDendriticHost`: helper for building host configurations from this base.
 

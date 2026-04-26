@@ -1,7 +1,6 @@
 {
   imports = [
-    ../modules/nixos
+    ./desktop.nix
+    ../modules/nixos/nvidia.nix
   ];
-
-  hardware.cpu.amd.updateMicrocode = true;
 }
