@@ -15,10 +15,10 @@ update-lock: ## Update all flake inputs
 	nix flake update
 
 update-lock-nixpkgs: ## Update nixpkgs lock input only
-	nix flake lock --update-input nixpkgs
+	nix flake update nixpkgs
 
 update-lock-home-manager: ## Update home-manager lock input only
-	nix flake lock --update-input home-manager
+	nix flake update home-manager
 
 update-lock-plasma-manager: ## Update plasma-manager lock input only
-	nix flake lock --update-input plasma-manager
+	nix flake update plasma-manager

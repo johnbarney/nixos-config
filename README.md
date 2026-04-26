@@ -43,7 +43,7 @@ make check
 Consumers update this base with:
 
 ```sh
-nix flake lock --update-input dendritic
+nix flake update dendritic
 ```
 
 ## Security
