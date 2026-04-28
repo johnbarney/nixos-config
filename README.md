@@ -1,6 +1,6 @@
 # NixOS Config (Dendritic)
 
-Public base flake for reusable NixOS modules, profiles, and installer support.
+Public base flake for reusable NixOS modules and installer support.
 It is not a complete host configuration by itself.
 
 Host definitions, generated hardware configs, Home Manager users, rebuild
@@ -9,19 +9,54 @@ commands, and ISO builds live in consumer repos. The public starter consumer is
 
 ## What This Exports
 
-- `nixosModules.default` / `nixosModules.dendritic`: shared NixOS module set.
-- `nixosModules.cpu-amd` / `nixosModules.cpu-intel`: optional CPU microcode modules.
-- `nixosModules.desktop`: desktop profile without NVIDIA-specific settings.
-- `nixosModules.desktop-nvidia`: desktop profile plus NVIDIA settings.
+- `lib.moduleCatalog.hardware`: hardware modules such as CPU microcode, NVIDIA, and TPM/LUKS support.
+- `lib.moduleCatalog.systemSoftware`: system modules such as base OS settings, networking, audio, desktop environments, display managers, Flatpak, fonts, and wallpaper.
+- `lib.moduleCatalog.userSoftware`: user-facing software modules such as Steam and 1Password.
+- `nixosModules.*`: flat aliases for the catalog modules, using names such as `hardware-cpu-amd`, `system-desktop-kde`, and `user-steam`.
 - `nixosModules.installer`: live ISO customizations used by host repos.
-- `lib.mkDendriticHost`: helper for building host configurations from this base.
+- `lib.mkDendriticHost`: helper for building host configurations from hardware, system software, and user software lists.
+
+## Host Composition
+
+Hosts are built from three explicit lists:
+
+```nix
+dendritic.lib.mkDendriticHost {
+  hostname = "example-desktop";
+  username = "alice";
+  hostModule = ./hosts/example-desktop;
+
+  hardware = with dendritic.lib.moduleCatalog.hardware; [
+    cpuAmd
+    nvidia
+  ];
+
+  systemSoftware = with dendritic.lib.moduleCatalog.systemSoftware; [
+    base
+    networking
+    audioPipewire
+    desktopServices
+    desktopKde
+    displaySddm
+    flatpak
+    fonts
+    wallpaper
+  ];
+
+  userSoftware = with dendritic.lib.moduleCatalog.userSoftware; [
+    onepassword
+    steam
+  ];
+}
+```
 
 ## Layout
 
 - `flake.nix`: flake entrypoint.
 - `flake/nixos-configurations.nix`: public flake API.
-- `modules/nixos/`: shared NixOS modules.
-- `profiles/`: composed machine profiles.
+- `modules/hardware/`: hardware, firmware, GPU, CPU, and platform support.
+- `modules/system/`: operating system services and desktop/session support.
+- `modules/user/`: user-facing software.
 - `installer/`: reusable installer module and `install-nixos-host` helper.
 
 ## Repo Model
