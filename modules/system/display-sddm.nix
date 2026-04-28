@@ -1,4 +1,7 @@
 { ... }:
+let
+  theme = import ../../lib/theme.nix;
+in
 {
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
@@ -7,7 +10,7 @@
   services.displayManager.sddm.settings = {
     Theme = {
       Current = "breeze";
-      Background = "/etc/wallpapers/dark_jungle.jpeg";
+      Background = theme.wallpaper.path;
     };
   };
 

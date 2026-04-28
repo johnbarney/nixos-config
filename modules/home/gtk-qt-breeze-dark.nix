@@ -1,9 +1,12 @@
 { pkgs, ... }:
+let
+  theme = import ../../lib/theme.nix;
+in
 {
   gtk = {
     enable = true;
     theme = {
-      name = "Breeze-Dark";
+      name = theme.kde.gtkTheme;
       package = pkgs.kdePackages.breeze-gtk;
     };
     iconTheme = {
@@ -11,12 +14,12 @@
       package = pkgs.kdePackages.breeze-icons;
     };
     cursorTheme = {
-      name = "breeze_cursors";
+      name = theme.cursor.name;
       package = pkgs.kdePackages.breeze;
-      size = 24;
+      size = theme.cursor.size;
     };
     font = {
-      name = "Noto Sans";
+      name = theme.fonts.sans;
       size = 10;
     };
     gtk3.extraConfig = {
@@ -31,7 +34,7 @@
   qt = {
     enable = true;
     platformTheme.name = "kde";
-    style.name = "Breeze";
+    style.name = theme.kde.qtStyle;
   };
 
   home.packages = with pkgs; [

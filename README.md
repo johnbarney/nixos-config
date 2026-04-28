@@ -9,11 +9,11 @@ commands, and ISO builds live in consumer repos. The public starter consumer is
 
 ## What This Exports
 
-- `lib.moduleCatalog.hardware`: hardware modules such as CPU microcode, AMD graphics, NVIDIA, and TPM/LUKS support.
+- `lib.moduleCatalog.hardware`: hardware modules such as CPU microcode, AMD/NVIDIA graphics, and TPM/LUKS support.
 - `lib.moduleCatalog.systemSoftware`: system modules such as base OS settings, networking, audio, GNOME/KDE/Hyprland desktops, display managers, Flatpak, fonts, and wallpaper.
-- `lib.moduleCatalog.userSoftware`: user-facing software modules such as Chromium, Heroic, Steam, VS Code, and 1Password.
-- `lib.moduleCatalog.homeSoftware`: Home Manager modules such as shell, SSH, VS Code, Kitty, Breeze theming, Plasma settings, and Hyprland user configuration.
-- `nixosModules.*`: flat aliases for the catalog modules, using names such as `hardware-cpu-amd`, `hardware-graphics-amd`, `system-desktop-gnome-full`, `system-desktop-kde-full`, and `user-steam`.
+- `lib.moduleCatalog.userSoftware`: user-facing software modules such as Chromium, Heroic, Steam, VS Code, dev CLI tools, and 1Password.
+- `lib.moduleCatalog.homeSoftware`: Home Manager modules such as shell, SSH, VS Code, Kitty, Breeze theming, GNOME/Plasma settings, and granular Hyprland user configuration.
+- `nixosModules.*`: flat aliases for the catalog modules, using names such as `hardware-cpu-amd`, `hardware-graphics-nvidia`, `system-desktop-gnome-full`, `system-desktop-kde-full`, and `user-steam`.
 - `homeModules.*`: flat aliases for Home Manager modules, using names such as `shell-zsh`, `terminal-kitty`, and `hyprland-full`.
 - `nixosModules.installer`: live ISO customizations used by host repos.
 - `lib.mkDendriticHost`: helper for building host configurations from hardware, system software, and user software lists.
@@ -30,7 +30,7 @@ dendritic.lib.mkDendriticHost {
 
   hardware = with dendritic.lib.moduleCatalog.hardware; [
     cpuAmd
-    nvidia
+    graphicsNvidia
   ];
 
   systemSoftware = with dendritic.lib.moduleCatalog.systemSoftware; [
@@ -47,6 +47,7 @@ dendritic.lib.mkDendriticHost {
 
   userSoftware = with dendritic.lib.moduleCatalog.userSoftware; [
     chromium
+    devCli
     heroic
     onepassword
     steam
@@ -55,11 +56,12 @@ dendritic.lib.mkDendriticHost {
 
   homeSoftware = with dendritic.lib.moduleCatalog.homeSoftware; [
     base
+    git
     shellZsh
     sshOnepasswordAgent
     vscode
     terminalKitty
-    themeBreezeDark
+    gtkQtBreezeDark
     plasmaBreezeDark
     hyprlandFull
   ];

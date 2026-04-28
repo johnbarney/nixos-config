@@ -1,4 +1,7 @@
 { plasma-manager, ... }:
+let
+  theme = import ../../lib/theme.nix;
+in
 {
   imports = [
     plasma-manager.homeModules.plasma-manager
@@ -7,25 +10,25 @@
   programs.plasma = {
     enable = true;
     workspace = {
-      lookAndFeel = "org.kde.breezedark.desktop";
-      iconTheme = "breeze";
+      lookAndFeel = theme.kde.lookAndFeel;
+      iconTheme = theme.kde.iconTheme;
       cursor = {
-        theme = "breeze_cursors";
-        size = 24;
+        theme = theme.cursor.name;
+        size = theme.cursor.size;
       };
-      wallpaper = "/etc/wallpapers/dark_jungle.jpeg";
+      wallpaper = theme.wallpaper.path;
     };
     fonts = {
       general = {
-        family = "Noto Sans";
+        family = theme.fonts.sans;
         pointSize = 10;
       };
       fixedWidth = {
-        family = "Noto Sans Mono";
+        family = theme.fonts.mono;
         pointSize = 10;
       };
       windowTitle = {
-        family = "Noto Sans";
+        family = theme.fonts.sans;
         pointSize = 10;
       };
     };
