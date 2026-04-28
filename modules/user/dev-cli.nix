@@ -4,7 +4,7 @@
     fd
     jq
     nil
-    nixfmt-rfc-style
+    nixfmt
     ripgrep
     tree
   ];
