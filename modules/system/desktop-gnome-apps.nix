@@ -1,0 +1,28 @@
+{ pkgs, ... }:
+{
+  environment.systemPackages = with pkgs; [
+    baobab
+    dconf-editor
+    evince
+    file-roller
+    gnome-calculator
+    gnome-calendar
+    gnome-characters
+    gnome-clocks
+    gnome-connections
+    gnome-contacts
+    gnome-disk-utility
+    gnome-font-viewer
+    gnome-logs
+    gnome-maps
+    gnome-system-monitor
+    gnome-text-editor
+    gnome-tweaks
+    gnome-weather
+    loupe
+    nautilus
+    simple-scan
+    snapshot
+    totem
+  ];
+}

@@ -10,9 +10,9 @@ commands, and ISO builds live in consumer repos. The public starter consumer is
 ## What This Exports
 
 - `lib.moduleCatalog.hardware`: hardware modules such as CPU microcode, AMD graphics, NVIDIA, and TPM/LUKS support.
-- `lib.moduleCatalog.systemSoftware`: system modules such as base OS settings, networking, audio, desktop environments, display managers, Flatpak, fonts, and wallpaper.
+- `lib.moduleCatalog.systemSoftware`: system modules such as base OS settings, networking, audio, GNOME/KDE/Hyprland desktops, display managers, Flatpak, fonts, and wallpaper.
 - `lib.moduleCatalog.userSoftware`: user-facing software modules such as Chromium, Heroic, Steam, VS Code, and 1Password.
-- `nixosModules.*`: flat aliases for the catalog modules, using names such as `hardware-cpu-amd`, `hardware-graphics-amd`, `system-desktop-kde-full`, and `user-steam`.
+- `nixosModules.*`: flat aliases for the catalog modules, using names such as `hardware-cpu-amd`, `hardware-graphics-amd`, `system-desktop-gnome-full`, `system-desktop-kde-full`, and `user-steam`.
 - `nixosModules.installer`: live ISO customizations used by host repos.
 - `lib.mkDendriticHost`: helper for building host configurations from hardware, system software, and user software lists.
 
@@ -36,8 +36,8 @@ dendritic.lib.mkDendriticHost {
     networking
     audioPipewire
     desktopServices
-    desktopKdeFull
     displaySddm
+    desktopKdeFull
     flatpak
     fonts
     wallpaper
