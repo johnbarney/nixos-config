@@ -38,13 +38,28 @@ let
       steam = ../modules/user/steam.nix;
       vscode = ../modules/user/vscode.nix;
     };
+
+    homeSoftware = {
+      base = ../modules/home/base.nix;
+      hyprlandFull = ../modules/home/hyprland-full.nix;
+      plasmaBreezeDark = ../modules/home/plasma-breeze-dark.nix;
+      shellZsh = ../modules/home/shell-zsh.nix;
+      sshOnepasswordAgent = ../modules/home/ssh-onepassword-agent.nix;
+      terminalKitty = ../modules/home/terminal-kitty.nix;
+      themeBreezeDark = ../modules/home/theme-breeze-dark.nix;
+      vscode = ../modules/home/vscode.nix;
+    };
   };
 
-  mkHomeManagerModule = { username, homeModule }: {
+  mkHomeManagerModule = { username, homeModule, homeSoftware }: {
     home-manager.useGlobalPkgs = true;
     home-manager.useUserPackages = true;
     home-manager.extraSpecialArgs = { inherit (inputs) plasma-manager; };
-    home-manager.users.${username} = import homeModule;
+    home-manager.users.${username} = {
+      imports = homeSoftware ++ lib.optionals (homeModule != null) [
+        homeModule
+      ];
+    };
   };
 
   mkDendriticHost =
@@ -55,6 +70,7 @@ let
       hardware ? [ ],
       systemSoftware ? [ moduleCatalog.systemSoftware.base ],
       userSoftware ? [ ],
+      homeSoftware ? [ ],
       homeModule ? null,
       extraModules ? [ ],
       specialArgs ? { },
@@ -71,9 +87,9 @@ let
       ++ [
         hostModule
       ]
-      ++ lib.optionals (homeModule != null) [
+      ++ lib.optionals (homeModule != null || homeSoftware != [ ]) [
         inputs.home-manager.nixosModules.home-manager
-        (mkHomeManagerModule { inherit username homeModule; })
+        (mkHomeManagerModule { inherit username homeModule homeSoftware; })
       ]
       ++ extraModules;
     };
@@ -116,6 +132,17 @@ in
       user-steam = moduleCatalog.userSoftware.steam;
       user-vscode = moduleCatalog.userSoftware.vscode;
       installer = ../installer/default.nix;
+    };
+
+    homeModules = {
+      base = moduleCatalog.homeSoftware.base;
+      hyprland-full = moduleCatalog.homeSoftware.hyprlandFull;
+      plasma-breeze-dark = moduleCatalog.homeSoftware.plasmaBreezeDark;
+      shell-zsh = moduleCatalog.homeSoftware.shellZsh;
+      ssh-onepassword-agent = moduleCatalog.homeSoftware.sshOnepasswordAgent;
+      terminal-kitty = moduleCatalog.homeSoftware.terminalKitty;
+      theme-breeze-dark = moduleCatalog.homeSoftware.themeBreezeDark;
+      vscode = moduleCatalog.homeSoftware.vscode;
     };
   };
 }

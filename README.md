@@ -12,7 +12,9 @@ commands, and ISO builds live in consumer repos. The public starter consumer is
 - `lib.moduleCatalog.hardware`: hardware modules such as CPU microcode, AMD graphics, NVIDIA, and TPM/LUKS support.
 - `lib.moduleCatalog.systemSoftware`: system modules such as base OS settings, networking, audio, GNOME/KDE/Hyprland desktops, display managers, Flatpak, fonts, and wallpaper.
 - `lib.moduleCatalog.userSoftware`: user-facing software modules such as Chromium, Heroic, Steam, VS Code, and 1Password.
+- `lib.moduleCatalog.homeSoftware`: Home Manager modules such as shell, SSH, VS Code, Kitty, Breeze theming, Plasma settings, and Hyprland user configuration.
 - `nixosModules.*`: flat aliases for the catalog modules, using names such as `hardware-cpu-amd`, `hardware-graphics-amd`, `system-desktop-gnome-full`, `system-desktop-kde-full`, and `user-steam`.
+- `homeModules.*`: flat aliases for Home Manager modules, using names such as `shell-zsh`, `terminal-kitty`, and `hyprland-full`.
 - `nixosModules.installer`: live ISO customizations used by host repos.
 - `lib.mkDendriticHost`: helper for building host configurations from hardware, system software, and user software lists.
 
@@ -50,6 +52,19 @@ dendritic.lib.mkDendriticHost {
     steam
     vscode
   ];
+
+  homeSoftware = with dendritic.lib.moduleCatalog.homeSoftware; [
+    base
+    shellZsh
+    sshOnepasswordAgent
+    vscode
+    terminalKitty
+    themeBreezeDark
+    plasmaBreezeDark
+    hyprlandFull
+  ];
+
+  homeModule = ./home/alice/home.nix;
 }
 ```
 
