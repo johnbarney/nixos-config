@@ -9,6 +9,7 @@
     gnome-calendar
     gnome-characters
     gnome-clocks
+    gnome-console
     gnome-connections
     gnome-contacts
     gnome-disk-utility

@@ -1,8 +1,14 @@
 { config, lib, pkgs, ... }:
 let
   theme = import ../../lib/theme.nix;
+  defaultApps = config.dendritic.defaultApps;
   screenshotDir = "${config.home.homeDirectory}/Pictures/Screenshots";
-  terminalBin = "${pkgs.kitty}/bin/kitty";
+  terminalBin =
+    if defaultApps.terminalCommand == null then
+      "${pkgs.kitty}/bin/kitty"
+    else
+      defaultApps.terminalCommand;
+  fileManagerBin = defaultApps.fileManagerCommand;
   hyprCheatsheetCommand =
     "${terminalBin} --class hypr-cheatsheet --title 'Hypr Cheatsheet' --override remember_window_size=no --override initial_window_width=52c --override initial_window_height=22c ${hyprCheatsheet}/bin/hypr-cheatsheet";
   hyprCheatsheet = pkgs.writeShellScriptBin "hypr-cheatsheet" ''
@@ -63,6 +69,10 @@ let
   );
 in
 {
+  imports = [
+    ./default-apps.nix
+  ];
+
   wayland.windowManager.hyprland = {
     enable = true;
     systemd.enable = true;
@@ -147,8 +157,7 @@ in
         [
           "$mainMod, RETURN, exec, ${terminalBin}"
           "$mainMod, SPACE, exec, ${pkgs.fuzzel}/bin/fuzzel"
-          "$mainMod, B, exec, ${pkgs.chromium}/bin/chromium"
-          "$mainMod, E, exec, ${pkgs.kdePackages.dolphin}/bin/dolphin"
+          "$mainMod, B, exec, ${pkgs.xdg-utils}/bin/xdg-open https://example.com"
           "$mainMod, slash, exec, ${hyprCheatsheetCommand}"
           "$mainMod, TAB, cyclenext"
           "$mainMod SHIFT, TAB, cyclenext, prev"
@@ -173,6 +182,9 @@ in
           "$mainMod SHIFT, 3, exec, ${screenshotFull}/bin/capture-screen"
           "$mainMod SHIFT, 4, exec, ${screenshotArea}/bin/capture-area"
           "$mainMod CTRL, L, exec, ${pkgs.systemd}/bin/loginctl lock-session"
+        ]
+        ++ lib.optionals (fileManagerBin != null) [
+          "$mainMod, E, exec, ${fileManagerBin}"
         ]
         ++ hyprWorkspaces;
 

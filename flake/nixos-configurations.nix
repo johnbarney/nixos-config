@@ -2,12 +2,14 @@
 let
   defaultSystem = "x86_64-linux";
   inherit (inputs.nixpkgs) lib;
+  catalogDocs = import ../lib/catalog-docs.nix;
 
-  moduleCatalog = {
+  moduleCatalog = rec {
     hardware = {
       cpuAmd = ../modules/hardware/cpu-amd.nix;
       cpuIntel = ../modules/hardware/cpu-intel.nix;
       graphicsAmd = ../modules/hardware/graphics-amd.nix;
+      graphicsIntel = ../modules/hardware/graphics-intel.nix;
       graphicsNvidia = ../modules/hardware/graphics-nvidia.nix;
       tpmLuks = ../modules/hardware/tpm-luks.nix;
     };
@@ -33,6 +35,7 @@ let
       fonts = ../modules/system/fonts.nix;
       firmwareUpdates = ../modules/system/firmware-updates.nix;
       networking = ../modules/system/networking.nix;
+      networkShares = ../modules/system/network-shares.nix;
       networkmanager = ../modules/system/networkmanager.nix;
       powerManagement = ../modules/system/power-management.nix;
       printing = ../modules/system/printing.nix;
@@ -43,16 +46,17 @@ let
 
     userSoftware = {
       chromium = ../modules/user/chromium.nix;
-      devCli = ../modules/user/dev-cli.nix;
-      heroic = ../modules/user/heroic.nix;
+      firefox = ../modules/user/firefox.nix;
       onepassword = ../modules/user/onepassword.nix;
       steam = ../modules/user/steam.nix;
-      vscode = ../modules/user/vscode.nix;
     };
 
     homeSoftware = {
       base = ../modules/home/base.nix;
-      git = ../modules/home/git.nix;
+      defaultApps = ../modules/home/default-apps.nix;
+      defaultAppsGnome = ../modules/home/default-apps-gnome.nix;
+      defaultAppsHyprland = ../modules/home/default-apps-hyprland.nix;
+      defaultAppsKde = ../modules/home/default-apps-kde.nix;
       gnomeBreezeDark = ../modules/home/gnome-breeze-dark.nix;
       gtkQtBreezeDark = ../modules/home/gtk-qt-breeze-dark.nix;
       hyprlandBar = ../modules/home/hyprland-bar.nix;
@@ -62,13 +66,96 @@ let
       hyprlandSession = ../modules/home/hyprland-session.nix;
       hyprlandWallpaper = ../modules/home/hyprland-wallpaper.nix;
       plasmaBreezeDark = ../modules/home/plasma-breeze-dark.nix;
-      shellZsh = ../modules/home/shell-zsh.nix;
       ssh = ../modules/home/ssh.nix;
       sshOnepasswordAgent = ../modules/home/ssh-onepassword-agent.nix;
       terminalKitty = ../modules/home/terminal-kitty.nix;
-      vscode = ../modules/home/vscode.nix;
+    };
+
+    metaModules = {
+      kde = {
+        systemSoftware = with systemSoftware; [
+          desktopKdeFull
+          fonts
+        ];
+
+        userSoftware = with userSoftware; [
+          chromium
+        ];
+
+        homeSoftware = with homeSoftware; [
+          defaultAppsKde
+          gtkQtBreezeDark
+          plasmaBreezeDark
+        ];
+      };
+
+      gnome = {
+        systemSoftware = with systemSoftware; [
+          desktopGnomeFull
+          fonts
+        ];
+
+        userSoftware = with userSoftware; [
+          firefox
+        ];
+
+        homeSoftware = with homeSoftware; [
+          defaultAppsGnome
+          gnomeBreezeDark
+        ];
+      };
+
+      hyprland = {
+        systemSoftware = with systemSoftware; [
+          desktopHyprland
+          fonts
+        ];
+
+        userSoftware = with userSoftware; [
+          chromium
+        ];
+
+        homeSoftware = with homeSoftware; [
+          defaultAppsHyprland
+          gtkQtBreezeDark
+          hyprlandFull
+          terminalKitty
+        ];
+      };
+
+      onepassword = {
+        userSoftware = with userSoftware; [
+          onepassword
+        ];
+
+        homeSoftware = with homeSoftware; [
+          sshOnepasswordAgent
+        ];
+      };
     };
   };
+
+  emptyMetaModule = {
+    hardware = [ ];
+    systemSoftware = [ ];
+    userSoftware = [ ];
+    homeSoftware = [ ];
+  };
+
+  mergeMetaModules = metaModules:
+    lib.foldl'
+      (acc: metaModule:
+        let
+          meta = emptyMetaModule // metaModule;
+        in
+        {
+          hardware = acc.hardware ++ meta.hardware;
+          systemSoftware = acc.systemSoftware ++ meta.systemSoftware;
+          userSoftware = acc.userSoftware ++ meta.userSoftware;
+          homeSoftware = acc.homeSoftware ++ meta.homeSoftware;
+        })
+      emptyMetaModule
+      metaModules;
 
   mkHomeManagerModule = { username, homeModule, homeSoftware }: {
     home-manager.useGlobalPkgs = true;
@@ -86,8 +173,9 @@ let
       hostname,
       username,
       hostModule,
+      metaModules ? [ ],
       hardware ? [ ],
-      systemSoftware ? [ moduleCatalog.systemSoftware.base ],
+      systemSoftware ? [ ],
       userSoftware ? [ ],
       homeSoftware ? [ ],
       homeModule ? null,
@@ -95,20 +183,35 @@ let
       specialArgs ? { },
       system ? defaultSystem,
     }:
+    let
+      metaSoftware = mergeMetaModules metaModules;
+      finalHardware = metaSoftware.hardware ++ hardware;
+      mergedSystemSoftware = metaSoftware.systemSoftware ++ systemSoftware;
+      finalSystemSoftware =
+        if mergedSystemSoftware == [ ] then
+          [ moduleCatalog.systemSoftware.base ]
+        else
+          mergedSystemSoftware;
+      finalUserSoftware = metaSoftware.userSoftware ++ userSoftware;
+      finalHomeSoftware = metaSoftware.homeSoftware ++ homeSoftware;
+    in
     lib.nixosSystem {
       inherit system;
       specialArgs = {
         inherit hostname username;
       } // specialArgs;
-      modules = hardware
-      ++ systemSoftware
-      ++ userSoftware
+      modules = finalHardware
+      ++ finalSystemSoftware
+      ++ finalUserSoftware
       ++ [
         hostModule
       ]
-      ++ lib.optionals (homeModule != null || homeSoftware != [ ]) [
+      ++ lib.optionals (homeModule != null || finalHomeSoftware != [ ]) [
         inputs.home-manager.nixosModules.home-manager
-        (mkHomeManagerModule { inherit username homeModule homeSoftware; })
+        (mkHomeManagerModule {
+          inherit username homeModule;
+          homeSoftware = finalHomeSoftware;
+        })
       ]
       ++ extraModules;
     };
@@ -119,7 +222,7 @@ in
 
   flake = {
     lib = {
-      inherit mkDendriticHost moduleCatalog;
+      inherit catalogDocs mkDendriticHost mergeMetaModules moduleCatalog;
     };
 
     nixosModules = {
@@ -127,6 +230,7 @@ in
       hardware-cpu-amd = moduleCatalog.hardware.cpuAmd;
       hardware-cpu-intel = moduleCatalog.hardware.cpuIntel;
       hardware-graphics-amd = moduleCatalog.hardware.graphicsAmd;
+      hardware-graphics-intel = moduleCatalog.hardware.graphicsIntel;
       hardware-graphics-nvidia = moduleCatalog.hardware.graphicsNvidia;
       hardware-tpm-luks = moduleCatalog.hardware.tpmLuks;
       system-audio-pipewire = moduleCatalog.systemSoftware.audioPipewire;
@@ -149,6 +253,7 @@ in
       system-fonts = moduleCatalog.systemSoftware.fonts;
       system-firmware-updates = moduleCatalog.systemSoftware.firmwareUpdates;
       system-networking = moduleCatalog.systemSoftware.networking;
+      system-network-shares = moduleCatalog.systemSoftware.networkShares;
       system-networkmanager = moduleCatalog.systemSoftware.networkmanager;
       system-power-management = moduleCatalog.systemSoftware.powerManagement;
       system-printing = moduleCatalog.systemSoftware.printing;
@@ -156,17 +261,18 @@ in
       system-time-sync = moduleCatalog.systemSoftware.timeSync;
       system-wallpaper = moduleCatalog.systemSoftware.wallpaper;
       user-chromium = moduleCatalog.userSoftware.chromium;
-      user-dev-cli = moduleCatalog.userSoftware.devCli;
-      user-heroic = moduleCatalog.userSoftware.heroic;
+      user-firefox = moduleCatalog.userSoftware.firefox;
       user-onepassword = moduleCatalog.userSoftware.onepassword;
       user-steam = moduleCatalog.userSoftware.steam;
-      user-vscode = moduleCatalog.userSoftware.vscode;
       installer = ../installer/default.nix;
     };
 
     homeModules = {
       base = moduleCatalog.homeSoftware.base;
-      git = moduleCatalog.homeSoftware.git;
+      default-apps = moduleCatalog.homeSoftware.defaultApps;
+      default-apps-gnome = moduleCatalog.homeSoftware.defaultAppsGnome;
+      default-apps-hyprland = moduleCatalog.homeSoftware.defaultAppsHyprland;
+      default-apps-kde = moduleCatalog.homeSoftware.defaultAppsKde;
       gnome-breeze-dark = moduleCatalog.homeSoftware.gnomeBreezeDark;
       gtk-qt-breeze-dark = moduleCatalog.homeSoftware.gtkQtBreezeDark;
       hyprland-bar = moduleCatalog.homeSoftware.hyprlandBar;
@@ -176,11 +282,9 @@ in
       hyprland-session = moduleCatalog.homeSoftware.hyprlandSession;
       hyprland-wallpaper = moduleCatalog.homeSoftware.hyprlandWallpaper;
       plasma-breeze-dark = moduleCatalog.homeSoftware.plasmaBreezeDark;
-      shell-zsh = moduleCatalog.homeSoftware.shellZsh;
       ssh = moduleCatalog.homeSoftware.ssh;
       ssh-onepassword-agent = moduleCatalog.homeSoftware.sshOnepasswordAgent;
       terminal-kitty = moduleCatalog.homeSoftware.terminalKitty;
-      vscode = moduleCatalog.homeSoftware.vscode;
     };
   };
 }
