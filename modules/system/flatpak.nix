@@ -2,10 +2,6 @@
 {
   services.flatpak.enable = true;
 
-  environment.systemPackages = with pkgs; [
-    flatpak
-  ];
-
   systemd.services.flatpak-flathub = {
     description = "Add Flathub remote";
     wantedBy = [ "multi-user.target" ];

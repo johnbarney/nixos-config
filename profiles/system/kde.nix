@@ -1,8 +1,8 @@
 { ... }:
 {
   imports = [
-    ../../modules/system/desktop-kde-full.nix
+    ../../modules/system/desktop-kde.nix
+    ../../modules/system/desktop-kde-apps.nix
     ../../modules/system/fonts.nix
-    ../../modules/user/chromium.nix
   ];
 }

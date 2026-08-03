@@ -11,6 +11,9 @@
 
   networking.hostName = hostname;
   time.timeZone = "Etc/UTC";
+  i18n.defaultLocale = "en_US.UTF-8";
+  console.keyMap = "us";
+  services.xserver.xkb.layout = "us";
   system.stateVersion = "25.11";
 
   users.users.${username} = {

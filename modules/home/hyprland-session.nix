@@ -14,6 +14,7 @@ let
     else
       defaultApps.terminalCommand;
   fileManagerBin = defaultApps.fileManagerCommand;
+  browserLauncher = "${pkgs.gtk3}/bin/gtk-launch brave-origin.desktop";
   hyprCheatsheetCommand = "${terminalBin} --class hypr-cheatsheet --title 'Hypr Cheatsheet' --override remember_window_size=no --override initial_window_width=52c --override initial_window_height=22c ${hyprCheatsheet}/bin/hypr-cheatsheet";
   hyprCheatsheet = pkgs.writeShellScriptBin "hypr-cheatsheet" ''
     cat <<'EOF'
@@ -38,7 +39,7 @@ let
 
     SUPER+Shift+3    Screenshot screen
     SUPER+Shift+4    Screenshot area
-    SUPER+Ctrl+L     Lock session
+    SUPER+Alt+L      Lock session
 
     Close this window anytime.
     Reopen with SUPER+/
@@ -79,8 +80,10 @@ in
 
   wayland.windowManager.hyprland = {
     enable = true;
+    package = null;
+    portalPackage = null;
     configType = "hyprlang";
-    systemd.enable = true;
+    systemd.enable = false;
     xwayland.enable = true;
     settings = {
       "$mainMod" = "SUPER";
@@ -161,7 +164,7 @@ in
       bind = [
         "$mainMod, RETURN, exec, ${terminalBin}"
         "$mainMod, SPACE, exec, ${pkgs.fuzzel}/bin/fuzzel"
-        "$mainMod, B, exec, ${pkgs.xdg-utils}/bin/xdg-open https://example.com"
+        "$mainMod, B, exec, ${browserLauncher}"
         "$mainMod, slash, exec, ${hyprCheatsheetCommand}"
         "$mainMod, TAB, cyclenext"
         "$mainMod SHIFT, TAB, cyclenext, prev"
@@ -185,7 +188,7 @@ in
         "$mainMod, S, togglesplit"
         "$mainMod SHIFT, 3, exec, ${screenshotFull}/bin/capture-screen"
         "$mainMod SHIFT, 4, exec, ${screenshotArea}/bin/capture-area"
-        "$mainMod CTRL, L, exec, ${pkgs.systemd}/bin/loginctl lock-session"
+        "$mainMod ALT, L, exec, ${pkgs.systemd}/bin/loginctl lock-session"
       ]
       ++ lib.optionals (fileManagerBin != null) [
         "$mainMod, E, exec, ${fileManagerBin}"
@@ -213,11 +216,15 @@ in
     };
   };
 
+  # UWSM owns the graphical systemd session; make Home Manager's environment
+  # available without enabling Home Manager's conflicting session target.
+  xdg.configFile."uwsm/env".source =
+    "${config.home.sessionVariablesPackage}/etc/profile.d/hm-session-vars.sh";
+
   home.packages = with pkgs; [
     brightnessctl
     grim
     hyprCheatsheet
-    nodejs_22
     playerctl
     screenshotArea
     screenshotFull

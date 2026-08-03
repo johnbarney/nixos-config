@@ -1,8 +1,8 @@
 { ... }:
 {
   imports = [
-    ../../modules/system/desktop-gnome-full.nix
+    ../../modules/system/desktop-gnome.nix
+    ../../modules/system/desktop-gnome-apps.nix
     ../../modules/system/fonts.nix
-    ../../modules/user/firefox.nix
   ];
 }

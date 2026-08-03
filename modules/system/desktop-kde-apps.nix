@@ -36,6 +36,5 @@
     print-manager
     sddm-kcm
     spectacle
-    xdg-desktop-portal-kde
   ];
 }

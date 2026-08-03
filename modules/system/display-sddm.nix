@@ -13,9 +13,4 @@ in
       Background = theme.wallpaper.path;
     };
   };
-
-  # Improve Wayland behavior for Electron/Chromium apps
-  environment.sessionVariables = {
-    NIXOS_OZONE_WL = "1";
-  };
 }

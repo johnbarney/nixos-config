@@ -4,6 +4,8 @@ Reusable, opinionated NixOS and Home Manager modules. This flake provides
 standard `nixosModules` and `homeModules`; consumer repositories compose those
 modules with `nixpkgs.lib.nixosSystem`.
 
+The workstation browser is Brave Origin.
+
 ## Layers
 
 - `modules/` contains focused hardware, system, application, and Home Manager
@@ -11,7 +13,8 @@ modules with `nixpkgs.lib.nixosSystem`.
 - `profiles/system/` combines capabilities into workstation and desktop
   flavors.
 - `profiles/home/` contains matching per-user desktop defaults.
-- `installer/` provides the reusable installer ISO customization.
+- `installer/` provides configurable installer behavior shared by broad and
+  host-specific images.
 - `examples/basic/` is a complete, copyable host flake.
 
 Machine identity, filesystems, boot configuration, time zone, users, and state
@@ -33,9 +36,29 @@ Home Manager profiles:
 - `homeModules.desktop-gnome`
 - `homeModules.desktop-hyprland`
 
-Hardware, display-manager, Steam, 1Password, installer, and granular module
-exports are also available under `nixosModules`. Run `nix flake show` for the
-complete public surface.
+Hardware, display-manager, Steam, 1Password, and installer modules are also
+available under `nixosModules`. Run `nix flake show` for the complete public
+surface.
+
+The workstation profile includes AppImage and conventional dynamic-binary
+compatibility, `nh` for day-to-day NixOS commands, and conservative weekly
+store and disk maintenance. The Steam module adds GameMode, Protontricks,
+Proton GE, Gamescope, and MangoHud.
+
+## Broad Installer ISO
+
+This repository owns the hardware-agnostic Plasma installer/recovery image. It
+includes the broad firmware set and the reusable `install-nixos-host` helper,
+but deliberately does not bundle a private hosts flake.
+
+```sh
+make build-iso
+make iso-path
+make iso-sha
+```
+
+Consumer repositories can import `nixosModules.installer`, disable the broad
+firmware set, select their hardware modules, and bundle their own hosts flake.
 
 ## Start From the Example
 
@@ -72,6 +95,7 @@ module list and the matching Home Manager profile in the user's imports.
 make help
 make check
 make check-example
+make build-iso
 ```
 
 The weekly GitHub Actions workflow updates the lock file, evaluates the flake,

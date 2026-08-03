@@ -1,12 +1,21 @@
-{ pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 let
+  cfg = config.nixosConfig.installer;
+  bundledHostsFlake = if cfg.hostsFlake == null then "" else toString cfg.hostsFlake;
+
   installScript = pkgs.writeShellScriptBin "install-nixos-host" ''
     set -euo pipefail
 
     target_root="/mnt"
     repo_dst="''${target_root}/etc/nixos"
     host_arg="''${1:-}"
-    repo_src="''${2:-}"
+    default_repo_src=${lib.escapeShellArg bundledHostsFlake}
+    repo_src="''${2:-$default_repo_src}"
 
     list_hosts() {
       find "$repo_dst/hosts" -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
@@ -84,7 +93,11 @@ let
   installDesktopEntry = pkgs.makeDesktopItem {
     name = "install-nixos-host";
     desktopName = "Install NixOS Host (Flake)";
-    comment = "Choose a host from /mnt/etc/nixos and install it to /mnt";
+    comment =
+      if cfg.hostsFlake == null then
+        "Choose a host from /mnt/etc/nixos and install it to /mnt"
+      else
+        "Copy the bundled hosts flake, choose a host, and install it to /mnt";
     categories = [ "System" ];
     terminal = true;
     exec = "pkexec ${installScript}/bin/install-nixos-host";
@@ -92,24 +105,55 @@ let
   };
 in
 {
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nixpkgs.config.allowUnfree = true;
-
-  # Improve hardware compatibility in the live ISO (notably Wi-Fi chipsets).
-  hardware.enableRedistributableFirmware = true;
-  hardware.enableAllFirmware = true;
-
-  environment.systemPackages = with pkgs; [
-    git
-    installScript
-    installDesktopEntry
+  imports = [
+    ../modules/system/base.nix
+    ../modules/system/unfree.nix
   ];
 
-  # Ensure the desktop launcher appears in the live session menu.
-  environment.pathsToLink = [ "/share/applications" ];
+  options.nixosConfig.installer = {
+    hostsFlake = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      default = null;
+      description = "Optional hosts flake copied to /mnt/etc/nixos by the installer launcher.";
+    };
 
-  isoImage.makeEfiBootable = true;
-  isoImage.makeUsbBootable = true;
-  isoImage.volumeID = lib.mkForce "NIXOSINSTALLER";
-  isoImage.edition = lib.mkForce "plasma6installer";
+    enableAllFirmware = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = "Include non-redistributable firmware for a broad recovery image.";
+    };
+
+    volumeId = lib.mkOption {
+      type = lib.types.str;
+      default = "NIXOSINSTALLER";
+      description = "ISO volume identifier.";
+    };
+
+    edition = lib.mkOption {
+      type = lib.types.str;
+      default = "plasma6installer";
+      description = "Short installer edition name used in the ISO filename.";
+    };
+  };
+
+  config = {
+    # The public image defaults to maximum compatibility. Consumer images can
+    # disable the non-redistributable set when their hardware is known.
+    hardware.enableRedistributableFirmware = true;
+    hardware.enableAllFirmware = cfg.enableAllFirmware;
+
+    environment.systemPackages = with pkgs; [
+      git
+      installScript
+      installDesktopEntry
+    ];
+
+    # Ensure the desktop launcher appears in the live session menu.
+    environment.pathsToLink = [ "/share/applications" ];
+
+    isoImage.makeEfiBootable = true;
+    isoImage.makeUsbBootable = true;
+    isoImage.volumeID = lib.mkForce cfg.volumeId;
+    isoImage.edition = lib.mkForce cfg.edition;
+  };
 }

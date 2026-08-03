@@ -46,47 +46,6 @@
         steam = ./modules/user/steam.nix;
         home-manager = home-manager.nixosModules.home-manager;
         installer = ./installer/default.nix;
-
-        # Granular modules remain available for hosts that intentionally compose
-        # something other than the opinionated profiles above.
-        system-audio-pipewire = ./modules/system/audio-pipewire.nix;
-        system-avahi = ./modules/system/avahi.nix;
-        system-base = ./modules/system/base.nix;
-        system-bluetooth = ./modules/system/bluetooth.nix;
-        system-dconf = ./modules/system/dconf.nix;
-        system-desktop-gnome = ./modules/system/desktop-gnome.nix;
-        system-desktop-gnome-apps = ./modules/system/desktop-gnome-apps.nix;
-        system-desktop-gnome-full = ./modules/system/desktop-gnome-full.nix;
-        system-desktop-hyprland = ./modules/system/desktop-hyprland.nix;
-        system-desktop-kde = ./modules/system/desktop-kde.nix;
-        system-desktop-kde-apps = ./modules/system/desktop-kde-apps.nix;
-        system-desktop-kde-full = ./modules/system/desktop-kde-full.nix;
-        system-desktop-services = ./modules/system/desktop-services.nix;
-        system-display-gdm = ./modules/system/display-gdm.nix;
-        system-display-sddm = ./modules/system/display-sddm.nix;
-        system-firewall = ./modules/system/firewall.nix;
-        system-firmware-updates = ./modules/system/firmware-updates.nix;
-        system-flatpak = ./modules/system/flatpak.nix;
-        system-fonts = ./modules/system/fonts.nix;
-        system-network-shares = ./modules/system/network-shares.nix;
-        system-networking = ./modules/system/networking.nix;
-        system-networkmanager = ./modules/system/networkmanager.nix;
-        system-power-management = ./modules/system/power-management.nix;
-        system-printing = ./modules/system/printing.nix;
-        system-storage-desktop = ./modules/system/storage-desktop.nix;
-        system-time-sync = ./modules/system/time-sync.nix;
-        system-wallpaper = ./modules/system/wallpaper.nix;
-        user-chromium = ./modules/user/chromium.nix;
-        user-firefox = ./modules/user/firefox.nix;
-        user-onepassword = ./modules/user/onepassword.nix;
-        user-steam = ./modules/user/steam.nix;
-      };
-
-      plasmaThemeModule = {
-        imports = [
-          plasma-manager.homeModules.plasma-manager
-          ./modules/home/plasma-breeze-dark.nix
-        ];
       };
 
       kdeHomeProfile = {
@@ -103,23 +62,6 @@
         desktop-hyprland = ./profiles/home/hyprland.nix;
         desktop-kde = kdeHomeProfile;
         onepassword = ./modules/home/ssh-onepassword-agent.nix;
-
-        default-apps = ./modules/home/default-apps.nix;
-        default-apps-gnome = ./modules/home/default-apps-gnome.nix;
-        default-apps-hyprland = ./modules/home/default-apps-hyprland.nix;
-        default-apps-kde = ./modules/home/default-apps-kde.nix;
-        gnome-breeze-dark = ./modules/home/gnome-breeze-dark.nix;
-        gtk-qt-breeze-dark = ./modules/home/gtk-qt-breeze-dark.nix;
-        hyprland-bar = ./modules/home/hyprland-bar.nix;
-        hyprland-full = ./modules/home/hyprland-full.nix;
-        hyprland-launcher = ./modules/home/hyprland-launcher.nix;
-        hyprland-notifications = ./modules/home/hyprland-notifications.nix;
-        hyprland-session = ./modules/home/hyprland-session.nix;
-        hyprland-wallpaper = ./modules/home/hyprland-wallpaper.nix;
-        plasma-breeze-dark = plasmaThemeModule;
-        ssh = ./modules/home/ssh.nix;
-        ssh-onepassword-agent = ./modules/home/ssh-onepassword-agent.nix;
-        terminal-kitty = ./modules/home/terminal-kitty.nix;
       };
 
       exampleSystem = nixpkgs.lib.nixosSystem {
@@ -147,11 +89,26 @@
           }
         ];
       };
+
+      installerSystem = nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules = [
+          "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-calamares-plasma6.nix"
+          nixosModules.installer
+        ];
+      };
     in
     {
       inherit homeModules nixosModules;
 
-      checks.${system}.example = exampleSystem.config.system.build.toplevel;
+      checks.${system} = {
+        example = exampleSystem.config.system.build.toplevel;
+        installer = installerSystem.config.system.build.toplevel;
+      };
+
+      nixosConfigurations.installer = installerSystem;
+
+      packages.${system}.installer-iso = installerSystem.config.system.build.isoImage;
 
       templates.default = {
         path = ./examples/basic;

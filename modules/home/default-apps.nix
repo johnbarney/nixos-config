@@ -2,11 +2,6 @@
 let
   cfg = config.dendritic.defaultApps;
 
-  browserDesktopFiles = {
-    chromium = "chromium-browser.desktop";
-    firefox = "firefox.desktop";
-  };
-
   terminalCommands = {
     gnomeConsole = "${pkgs.gnome-console}/bin/kgx";
     kitty = "${pkgs.kitty}/bin/kitty";
@@ -27,15 +22,6 @@ let
 in
 {
   options.dendritic.defaultApps = {
-    browser = lib.mkOption {
-      type = lib.types.nullOr (lib.types.enum [
-        "chromium"
-        "firefox"
-      ]);
-      default = null;
-      description = "Default browser for XDG MIME and URL handling.";
-    };
-
     terminal = lib.mkOption {
       type = lib.types.nullOr (lib.types.enum [
         "gnomeConsole"
@@ -70,10 +56,8 @@ in
     };
   };
 
-  config = lib.mkIf (cfg.browser != null) {
-    xdg.mimeApps = {
-      enable = true;
-      defaultApplications = lib.genAttrs browserMimeTypes (_: browserDesktopFiles.${cfg.browser});
-    };
+  config.xdg.mimeApps = {
+    enable = true;
+    defaultApplications = lib.genAttrs browserMimeTypes (_: "brave-origin.desktop");
   };
 }
