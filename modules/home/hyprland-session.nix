@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   theme = import ../../lib/theme.nix;
   defaultApps = config.dendritic.defaultApps;
@@ -9,8 +14,7 @@ let
     else
       defaultApps.terminalCommand;
   fileManagerBin = defaultApps.fileManagerCommand;
-  hyprCheatsheetCommand =
-    "${terminalBin} --class hypr-cheatsheet --title 'Hypr Cheatsheet' --override remember_window_size=no --override initial_window_width=52c --override initial_window_height=22c ${hyprCheatsheet}/bin/hypr-cheatsheet";
+  hyprCheatsheetCommand = "${terminalBin} --class hypr-cheatsheet --title 'Hypr Cheatsheet' --override remember_window_size=no --override initial_window_width=52c --override initial_window_height=22c ${hyprCheatsheet}/bin/hypr-cheatsheet";
   hyprCheatsheet = pkgs.writeShellScriptBin "hypr-cheatsheet" ''
     cat <<'EOF'
     Hyprland shortcuts
@@ -55,17 +59,17 @@ let
     ${pkgs.grim}/bin/grim -g "$(${pkgs.slurp}/bin/slurp)" "$target"
   '';
   hyprWorkspaces = lib.concatLists (
-    builtins.genList
-      (i:
-        let
-          workspace = toString (i + 1);
-          key = if i == 9 then "0" else workspace;
-        in
-        [
-          "$mainMod, ${key}, workspace, ${workspace}"
-          "$mainMod SHIFT, ${key}, movetoworkspace, ${workspace}"
-        ])
-      10
+    builtins.genList (
+      i:
+      let
+        workspace = toString (i + 1);
+        key = if i == 9 then "0" else workspace;
+      in
+      [
+        "$mainMod, ${key}, workspace, ${workspace}"
+        "$mainMod SHIFT, ${key}, movetoworkspace, ${workspace}"
+      ]
+    ) 10
   );
 in
 {
@@ -75,6 +79,7 @@ in
 
   wayland.windowManager.hyprland = {
     enable = true;
+    configType = "hyprlang";
     systemd.enable = true;
     xwayland.enable = true;
     settings = {
@@ -153,40 +158,39 @@ in
         "noborder,class:^(hypr-cheatsheet)$"
       ];
 
-      bind =
-        [
-          "$mainMod, RETURN, exec, ${terminalBin}"
-          "$mainMod, SPACE, exec, ${pkgs.fuzzel}/bin/fuzzel"
-          "$mainMod, B, exec, ${pkgs.xdg-utils}/bin/xdg-open https://example.com"
-          "$mainMod, slash, exec, ${hyprCheatsheetCommand}"
-          "$mainMod, TAB, cyclenext"
-          "$mainMod SHIFT, TAB, cyclenext, prev"
-          "$mainMod, Q, killactive"
-          "$mainMod SHIFT, F, togglefloating"
-          "$mainMod, F, fullscreen, 0"
-          "$mainMod, V, togglefloating"
-          "$mainMod, H, movefocus, l"
-          "$mainMod, J, movefocus, d"
-          "$mainMod, K, movefocus, u"
-          "$mainMod, L, movefocus, r"
-          "$mainMod SHIFT, H, movewindow, l"
-          "$mainMod SHIFT, J, movewindow, d"
-          "$mainMod SHIFT, K, movewindow, u"
-          "$mainMod SHIFT, L, movewindow, r"
-          "$mainMod CTRL, H, resizeactive, -80 0"
-          "$mainMod CTRL, J, resizeactive, 0 80"
-          "$mainMod CTRL, K, resizeactive, 0 -80"
-          "$mainMod CTRL, L, resizeactive, 80 0"
-          "$mainMod, P, pseudo"
-          "$mainMod, S, togglesplit"
-          "$mainMod SHIFT, 3, exec, ${screenshotFull}/bin/capture-screen"
-          "$mainMod SHIFT, 4, exec, ${screenshotArea}/bin/capture-area"
-          "$mainMod CTRL, L, exec, ${pkgs.systemd}/bin/loginctl lock-session"
-        ]
-        ++ lib.optionals (fileManagerBin != null) [
-          "$mainMod, E, exec, ${fileManagerBin}"
-        ]
-        ++ hyprWorkspaces;
+      bind = [
+        "$mainMod, RETURN, exec, ${terminalBin}"
+        "$mainMod, SPACE, exec, ${pkgs.fuzzel}/bin/fuzzel"
+        "$mainMod, B, exec, ${pkgs.xdg-utils}/bin/xdg-open https://example.com"
+        "$mainMod, slash, exec, ${hyprCheatsheetCommand}"
+        "$mainMod, TAB, cyclenext"
+        "$mainMod SHIFT, TAB, cyclenext, prev"
+        "$mainMod, Q, killactive"
+        "$mainMod SHIFT, F, togglefloating"
+        "$mainMod, F, fullscreen, 0"
+        "$mainMod, V, togglefloating"
+        "$mainMod, H, movefocus, l"
+        "$mainMod, J, movefocus, d"
+        "$mainMod, K, movefocus, u"
+        "$mainMod, L, movefocus, r"
+        "$mainMod SHIFT, H, movewindow, l"
+        "$mainMod SHIFT, J, movewindow, d"
+        "$mainMod SHIFT, K, movewindow, u"
+        "$mainMod SHIFT, L, movewindow, r"
+        "$mainMod CTRL, H, resizeactive, -80 0"
+        "$mainMod CTRL, J, resizeactive, 0 80"
+        "$mainMod CTRL, K, resizeactive, 0 -80"
+        "$mainMod CTRL, L, resizeactive, 80 0"
+        "$mainMod, P, pseudo"
+        "$mainMod, S, togglesplit"
+        "$mainMod SHIFT, 3, exec, ${screenshotFull}/bin/capture-screen"
+        "$mainMod SHIFT, 4, exec, ${screenshotArea}/bin/capture-area"
+        "$mainMod CTRL, L, exec, ${pkgs.systemd}/bin/loginctl lock-session"
+      ]
+      ++ lib.optionals (fileManagerBin != null) [
+        "$mainMod, E, exec, ${fileManagerBin}"
+      ]
+      ++ hyprWorkspaces;
 
       bindm = [
         "$mainMod, mouse:272, movewindow"

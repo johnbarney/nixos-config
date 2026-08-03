@@ -1,12 +1,8 @@
-{ plasma-manager, ... }:
+{ ... }:
 let
   theme = import ../../lib/theme.nix;
 in
 {
-  imports = [
-    plasma-manager.homeModules.plasma-manager
-  ];
-
   programs.plasma = {
     enable = true;
     workspace = {
