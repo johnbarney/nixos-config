@@ -1,6 +1,6 @@
 SHELL := /usr/bin/env bash
 
-HOST ?= example
+HOST ?= fedora-kde
 REPO_DIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 REPO_FLAKE := path:$(REPO_DIR)
 

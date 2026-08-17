@@ -1,3 +1,4 @@
+# Fedora-inspired GNOME system profile.
 { ... }:
 {
   imports = [

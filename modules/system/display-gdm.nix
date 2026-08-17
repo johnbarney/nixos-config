@@ -5,7 +5,6 @@ in
 {
   services.xserver.enable = true;
   services.displayManager.gdm.enable = true;
-  services.displayManager.gdm.wayland = true;
 
   programs.dconf.profiles.gdm.databases = [
     {

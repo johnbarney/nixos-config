@@ -1,3 +1,4 @@
+# Fedora-inspired KDE Plasma home profile.
 { ... }:
 {
   imports = [

@@ -6,6 +6,6 @@
 
   dendritic.defaultApps = {
     terminal = lib.mkDefault "kitty";
-    fileManager = lib.mkDefault "dolphin";
+    fileManager = lib.mkDefault "nautilus";
   };
 }
